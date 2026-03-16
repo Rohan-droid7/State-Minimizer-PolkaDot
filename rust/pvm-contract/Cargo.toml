@@ -1,0 +1,22 @@
+[package]
+name = "State-minimizer"
+version = "0.1.0"
+edition = "2021"
+publish = false
+rust-version = "1.84"
+description = "State-minimizer is a tool that developers can use to store data on the blockchain in a more efficient way."
+
+[[bin]]
+name = "contract"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "s"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+
+[dependencies]
+polkavm-derive = { version = "0.26" }
+uapi = { package = "pallet-revive-uapi", version = "0.6", default-features = false }
+
