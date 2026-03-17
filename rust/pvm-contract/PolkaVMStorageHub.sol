@@ -31,6 +31,22 @@ contract PolkaVMStorageHub {
         admin = msg.sender;
     }
 
+    
+    event DataDecompressed(bytes data);
+
+    function retrieveFullData(address user, string memory key) public returns (bytes memory) {
+    bytes memory compressed = userStorage[user][key];
+    require(compressed.length > 0, "No data found");
+    
+    // Call Rust to decompress
+    bytes memory decompressed = rustVM.decompress(compressed);
+    
+    // EMIT THE EVENT so the frontend can see the result
+    emit DataDecompressed(decompressed);
+    
+    return decompressed;
+}
+
     /// @dev Compresses and stores data under a specific key for the caller
     function storeData(string memory key, bytes memory rawData) public {
         uint256 originalSize = rawData.length;
@@ -69,5 +85,9 @@ contract PolkaVMStorageHub {
         require(msg.sender == admin, "Only admin can upgrade");
         rustVM = IRustCompressor(_newRustVM);
         emit CompressorUpgraded(_newRustVM);
+    }
+
+    function getCompressedData(address user, string memory key) public view returns (bytes memory) {
+        return userStorage[user][key];
     }
 }
